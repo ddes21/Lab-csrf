@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid md:grid-cols-2 gap-6 items-start">
+  <div class="bg-white rounded-2xl shadow p-6">
+    <h2 class="text-xl font-bold mb-2">Sign in</h2>
+    {% if error %}<p class="text-red-600 mb-3">{{ error }}</p>{% endif %}
+    <form method="post" action="{{ url_for('main.login') }}" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Username</label>
+        <input class="w-full border rounded-lg px-3 py-2" name="username" value="bob" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input class="w-full border rounded-lg px-3 py-2" type="password" name="password" required>
+      </div>
+      <input type="hidden" name="next" value="/dashboard">
+      <button class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2">Login</button>
+    </form>
+    <p class="text-sm text-slate-500 mt-4">Hint: <code>bob / bob</code></p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow p-6">
+    <h3 class="font-semibold mb-2">Welcome!</h3>
+    <ul class="list-disc list-inside text-sm space-y-1 text-slate-600">
+      <li>See if you can identify the bug with the current login flow.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

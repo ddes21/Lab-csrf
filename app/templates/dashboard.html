@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  /* subtle scanlines + neon edges + idle animations */
+  .scanlines { background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px);
+               background-size: 100% 3px; }
+  .neon { box-shadow: 0 0 0.5rem rgba(56,189,248,.35), inset 0 0 .5rem rgba(99,102,241,.25); }
+  .neon-border { position: relative; }
+  .neon-border::before { content:""; position:absolute; inset: -1px; border-radius: inherit;
+    background: linear-gradient(135deg,#22d3ee,#8b5cf6,#22d3ee);
+    filter: blur(6px); opacity:.35; z-index:-1; }
+  .pulse-dot { box-shadow: 0 0 .35rem currentColor; }
+  @keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+  .sweep::after { content:""; position:absolute; inset:0; background: linear-gradient(90deg,
+      transparent, rgba(255,255,255,.06), transparent); animation: sweep 3.5s linear infinite; }
+  @keyframes flicker { 0%,100% { opacity: .9 } 92% { opacity:.7 } 95% { opacity:.5 } }
+  .flicker { animation: flicker 6s infinite; }
+</style>
+
+<!-- hero/status -->
+<section class="bg-slate-900 scanlines rounded-2xl neon-border ring-1 ring-slate-800">
+  <div class="p-6 sm:p-8 flex items-center justify-between gap-6">
+    <div>
+      <h2 class="text-2xl font-extrabold tracking-wider">
+        <span class="text-sky-300">AXIOM</span> <span class="text-violet-300">CONTROL</span>
+      </h2>
+      <p class="text-slate-400 mt-1 flicker">operations console</p>
+    </div>
+
+    <!-- status chip -->
+    <div class="flex items-center gap-3 bg-slate-800/70 border border-slate-700 rounded-xl px-4 py-2">
+      {% if user == 'admin' %}
+        <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 pulse-dot"></span>
+        <div class="leading-tight">
+          <div class="text-xs text-slate-400">CLEARANCE</div>
+          <div class="font-semibold text-slate-100">ADMIN</div>
+        </div>
+      {% else %}
+        <span class="h-2.5 w-2.5 rounded-full bg-amber-400 pulse-dot"></span>
+        <div class="leading-tight">
+          <div class="text-xs text-slate-400">CLEARANCE</div>
+          <div class="font-semibold text-slate-100">USER</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- content grid -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+
+  <!-- session card -->
+  <div class="col-span-1 bg-slate-900 rounded-2xl ring-1 ring-slate-800 neon-border">
+    <div class="p-6 sm:p-7">
+      <h3 class="text-lg font-semibold text-slate-100">Session</h3>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex items-center justify-between">
+          <dt class="text-slate-400">Callsign</dt>
+          <dd class="font-medium text-slate-100 tracking-wide">{{ user }}</dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-slate-400">Privilege</dt>
+          <dd class="font-medium text-slate-100">{% if user == 'admin' %}Admin{% else %}User{% endif %}</dd>
+        </div>
+      </dl>
+      <div class="mt-6 flex items-center gap-3">
+        {% if user == 'admin' %}
+          <a href="{{ url_for('main.admin') }}"
+             class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg px-4 py-2 shadow neon">
+            Admin Console
+          </a>
+        {% else %}
+          <span class="inline-flex items-center gap-2 bg-slate-800 text-slate-400 rounded-lg px-4 py-2 border border-slate-700 cursor-not-allowed">
+            Admin Console
+          </span>
+        {% endif %}
+        <a href="{{ url_for('main.logout') }}"
+           class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg px-4 py-2 border border-slate-700">
+          Log Out
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- telemetrics -->
+  <div class="col-span-2 bg-slate-900 rounded-2xl ring-1 ring-slate-800 relative overflow-hidden neon-border">
+    <div class="p-6 sm:p-7 relative sweep">
+      <h3 class="text-lg font-semibold text-slate-100">Telemetrics</h3>
+      <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- bars -->
+        <div class="space-y-3">
+          {% for i in range(8) %}
+          <div class="h-3 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-sky-400 to-violet-500"
+                 style="width: {{ 30 + (loop.index * 7) % 65 }}%; filter: drop-shadow(0 0 4px rgba(56,189,248,.6));"></div>
+          </div>
+          {% endfor %}
+        </div>
+        <!-- dials -->
+        <!-- bars (no inline style; no linter errors) -->
+        <div class="space-y-3">
+        {% for i in range(8) %}
+            {% set w = (30 + (loop.index * 7)) % 65 %}
+            <div class="h-3 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-sky-400 to-violet-500
+                        w-[{{ w }}%] drop-shadow"></div>
+            </div>
+        {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- subsystems grid -->
+  <div class="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% for name in ['Nexus Array','Quantum Bus','Cipher Matrix','Helios Drive','Aegis Field','Specter Mesh'] %}
+    <div class="bg-slate-900 rounded-2xl ring-1 ring-slate-800 p-5 neon-border">
+      <div class="flex items-center justify-between">
+        <h4 class="font-semibold text-slate-100">{{ name }}</h4>
+        <span class="text-xs px-2 py-0.5 rounded-full
+          {% if loop.index is divisibleby 2 %}bg-emerald-600/20 text-emerald-300 border border-emerald-700
+          {% else %}bg-amber-600/20 text-amber-300 border border-amber-700{% endif %}">
+          {% if loop.index is divisibleby 2 %}ONLINE{% else %}IDLE{% endif %}
+        </span>
+      </div>
+      <p class="mt-3 text-sm text-slate-400">Module status nominal. Awaiting command.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</section>
+{% endblock %}

@@ -1,0 +1,5 @@
+/* tiny polish for inputs */
+input[type=text], input[type=password] {
+    outline: none;
+  }
+  

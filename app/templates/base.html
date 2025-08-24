@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "CSRF Header Auth Bypass Lab" }}</title>
+
+  <!-- Tailwind CDN for quick, pretty UI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+
+  <style>
+    /* tiny gradient header */
+    .hero {
+      background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+  <header class="hero text-white">
+    <div class="max-w-5xl mx-auto py-6 px-4">
+      <h1 class="text-2xl md:text-3xl font-extrabold">Auth Bypass via Single-Use CSRF (Header)</h1>
+      <p class="opacity-90">Manipulate the redirect, ride someone else’s CSRF, become admin.</p>
+    </div>
+  </header>
+
+  <nav class="bg-white border-b border-slate-200">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a class="font-semibold" href="{{ url_for('main.root') }}">🏠 Home</a>
+      <div class="space-x-4">
+        {% if session.get('user') %}
+          <span class="text-sm">Logged in as <b>{{ session['user'] }}</b></span>
+          <a class="text-blue-600 hover:underline" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+          <a class="text-blue-600 hover:underline" href="{{ url_for('main.logout') }}">Logout</a>
+        {% else %}
+          <a class="text-blue-600 hover:underline" href="{{ url_for('main.login') }}">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mt-16 border-t border-slate-200">
+    <div class="max-w-5xl mx-auto px-4 py-6 text-sm text-slate-500">
+      <b></b> 
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-white rounded-2xl shadow p-8 text-center">
+  <h2 class="text-xl font-bold mb-2">Continuing your sign-in…</h2>
+  <p class="text-slate-600 mb-6">This step finalizes your login.</p>
+  <div class="animate-pulse text-slate-500 mb-6">Sending <code>/continue</code> with a header…</div>
+
+  <!-- Preview of what’s being sent (for students)
+  <pre class="bg-slate-50 p-4 rounded-lg text-left overflow-auto">
+GET {{ continue_url }}
+X-Login-CSRF: {{ login_token }}
+  </pre>
+  <p class="text-sm text-slate-500">
+    Tip: Intercept this request and change the URL to
+    <code>username=admin&amp;next=/admin</code>.
+  </p> -->
+
+  <!-- Bootstrap data so JS can read values without Jinja in <script> -->
+  <div id="boot"
+       data-continue-url="{{ continue_url|e }}"
+       data-login-token="{{ login_token|e }}"></div>
+</div>
+
+<script>
+  // No globals; no Jinja inside JS; VS Code linter stays happy.
+  (() => {
+    const boot = document.getElementById('boot');
+    const continueUrl = boot.dataset.continueUrl;
+    const csrfToken   = boot.dataset.loginToken;
+
+    fetch(continueUrl, {
+      method: "GET",
+      headers: { "X-Login-CSRF": csrfToken },
+      redirect: "follow",
+      credentials: "include"
+    })
+    .then(r => {
+      if (r.redirected) {
+        window.location = r.url;
+        return;
+      }
+      return r.text().then(html => {
+        document.open(); document.write(html); document.close();
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      const el = document.createElement("pre");
+      el.textContent = String(err);
+      document.body.appendChild(el);
+    });
+  })();
+</script>
+{% endblock %}
